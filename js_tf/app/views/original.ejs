@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="jp">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script>
+
+    <script language="javascript" type="text/javascript">
+      async function inference(){
+        await tf.setBackend('wasm');
+
+        // 入力データ
+        const textbox = document.getElementById("input_00");
+        // [[1, 2, 3, 4], [4, 1]] の2次元配列を想定
+        const inputValue = textbox.value;
+        const json_data = JSON.parse(inputValue)
+
+        // モデル取得
+        const path = "http://localhost:8200/model.json";
+        const model = await tf.loadLayersModel(path);
+
+        // 推論処理
+        const xs = tf.tensor2d(json_data[0], json_data[1]);
+        let y_pred = await model.predict(xs);
+        y_pred.print();
+
+        // 出力データ
+        const values = await y_pred.data();
+        const arr = await Array.from(values);
+        console.log(arr);
+        //出力用のp要素にメッセージを表示
+        output_message = JSON.stringify(arr)
+        document.getElementById("output_00").innerHTML = output_message;
+      }
+    </script>
+
+    <!--入力ボックス-->
+    <p id="input-message">入力データ(2次元配列)を指定してください</p>
+    <form id="form1" action="#">
+      <input type="text" id="input_00" placeholder="[[1,2,3,4],[4,1]]]">
+      <input type="button" onclick="inference()" value="推論実行">
+    </form>
+    <!--出力用ボックス-->
+    <p id="output-message">推論結果</p>
+    <p id="output_00"></p>
+  </body>
+</html>

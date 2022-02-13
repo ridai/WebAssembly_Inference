@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="jp">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script>
+
+    <script language="javascript" type="text/javascript">
+      async function inference(){
+        await tf.setBackend('wasm');
+
+        // 入力データ
+        let img = tf.browser.fromPixels(document.getElementById('img'))
+          .resizeBilinear([192, 192])
+          .expandDims(0)
+          .toFloat();
+
+        // モデル取得
+        let model = await tf.loadGraphModel(
+          'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v1_075_192/classification/1/default/1',
+          {fromTFHub: true});
+
+        // 開始時間
+        const startTime = Date.now();
+        // 推論処理
+        const values = model.predict(img);
+        // 終了時間
+        const endTime = Date.now();
+        // 何ミリ秒かかったかを表示する
+        console.log(endTime - startTime);
+        values.print();
+
+        //出力用のp要素にメッセージを表示
+        document.getElementById("output_00").innerHTML = values;
+      }
+    </script>
+
+    <!--入力ボックス-->
+    <img src="http://localhost:8200/cat.jpg" id="img">
+    <p id="input-message">画像を指定してください</p>
+    <form id="form1" action="#">
+      <input type="button" onclick="inference()" value="推論実行">
+    </form>
+    <!--出力用ボックス-->
+    <p id="output-message">推論結果</p>
+    <p id="output_00"></p>
+  </body>
+</html>

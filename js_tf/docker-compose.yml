@@ -1,0 +1,11 @@
+version: '3'
+services:
+  app:
+    build:
+        context: ./app
+    image: js_tf:dev
+    volumes:
+      - ./app:/app
+    ports:
+      - "8200:8200"
+    tty: true
